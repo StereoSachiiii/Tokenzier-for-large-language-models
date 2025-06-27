@@ -5,5 +5,19 @@ print('-------------------')
 print(text)
 print("length :",len(text))
 print('-------------------')
+tokens= list(map(int,tokens))
 print(tokens)
 print("length :",len(tokens))
+
+
+
+def get_stats(ids):
+    pairs = {}
+    for i in range(0, len(ids) - 1, 2):
+        pairs[i]=((ids[i], ids[i + 1]))
+
+        if len(text) % 2 != 0:
+            pairs[len(ids)-1]=((ids[-1],))
+    return pairs
+stats=get_stats(tokens)
+print(stats)
