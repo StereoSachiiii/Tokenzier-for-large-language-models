@@ -1,65 +1,69 @@
 text = "Life is a complex and unpredictable journey, often filled with moments of joy, sorrow, confusion, and clarity, all intricately woven together to form the tapestry of our experiences. As we navigate through its winding paths, we are constantly learning, adapting, and evolving—not just from our successes, but more importantly, from our failures and setbacks. Each day offers new opportunities to reflect, grow, and challenge ourselves, even when the odds seem overwhelming or when motivation is hard to find. The people we meet, the choices we make, and the environments we immerse ourselves in all shape who we become, influencing our character, values, and worldview. In a world where everything moves rapidly, it's easy to lose sight of the simple, quiet moments that often carry the most meaning—like a late-night conversation with a close friend, the peaceful stillness of early morning, or the bittersweet feeling of remembering something beautiful from the past. Ultimately, the journey is not about reaching some final destination, but about learning to be present in the moment, finding purpose in the small things, and striving to become a better version of ourselves—one thought, one step, and one day at a time."
+
 tokens = text.encode('utf-8')
-print('-------------------')
-print(text)
-print("length :", len(text))
-print('-------------------')
 tokens = list(map(int, tokens))
-print(tokens)
-print("length :", len(tokens))
 
 def get_stats(ids):
     counts = {}
     for i in range(len(ids) - 1):
-        pair = (ids[i], ids[i + 1])
-        counts[pair] = counts.get(pair, 0) + 1
+        a = ids[i]
+        b = ids[i + 1]
+        pair = (a, b)
+        if pair in counts:
+            counts[pair] += 1
+        else:
+            counts[pair] = 1
     return counts
 
-stats = get_stats(tokens)
-print(stats)
+def get_max(stats):
+    max_pair = None
+    max_count = -1
+    for pair in stats:
+        if stats[pair] > max_count:
+            max_count = stats[pair]
+            max_pair = pair
+    return max_pair
 
-def get_max(dic):
-    if not dic:
-        return None
-    return max(dic, key=dic.get)
-
-max_pair = get_max(stats)
-print(max_pair)
-
-def merge (tokens,max_pair,id):
-    newtokens=[]
-    i=0
-    while i<len(tokens):
-        if i<len(tokens)-1 and max_pair[0]==tokens[i] and max_pair[1] == tokens [i+1]:
-            newtokens.append(id)
-            i+=2
+def merge(tokens, max_pair, new_id):
+    new_tokens = []
+    i = 0
+    while i < len(tokens):
+        if i < len(tokens) - 1 and tokens[i] == max_pair[0] and tokens[i + 1] == max_pair[1]:
+            new_tokens.append(new_id)
+            i += 2
         else:
-            newtokens.append(tokens[i])        
-            i+=1
-    return newtokens
+            new_tokens.append(tokens[i])
+            i += 1
+    return new_tokens
 
-newtokenlist =merge(tokens,max_pair,len(tokens) )
-print(newtokenlist)
+tokens2 = list(tokens)
+merges = {}
+i = 0
 
-vocab_size =600
-num_merges =vocab_size -256
-tokens2=list(tokens)
+while True:
+    stats = get_stats(tokens2)
 
-merges={}
- 
-for i in range(num_merges):
-    stats=get_stats(tokens2)
-    if not stats:
-        print("No more pairs to merge.")
+    repeat_pairs = {}
+    for pair in stats:
+        if stats[pair] > 1:
+            repeat_pairs[pair] = stats[pair]
+
+    has_repeats = False
+    for _ in repeat_pairs:
+        has_repeats = True
         break
-    max_pair=max(stats, key=stats.get)
-    print(max_pair)
-    newtoken= 256+i
-    print(f"merging{max_pair} into a new token {newtoken}")
-    tokens2=merge(tokens2,max_pair,newtoken)
-    merges[max_pair]=newtoken
-    
-print(f"token list : {tokens2} ")
-print(f"number of tokens {len(tokens2)} and the old token size was {len(tokens)}")
-    
-    
+
+    if not has_repeats:
+        break
+
+    max_pair = get_max(repeat_pairs)
+    new_token = 256 + i
+    print("Merging", max_pair, "into new token", new_token)
+    tokens2 = merge(tokens2, max_pair, new_token)
+    merges[max_pair] = new_token
+    i += 1
+
+print("\nFinal token list:", tokens2)
+print("Number of tokens:", len(tokens2))
+print("Old token length:", len(tokens))
+print(i, "vocabulary tokens added. Final vocab size:", 256 + i)
