@@ -16,12 +16,7 @@ def get_stats(ids):
     return counts
 
 def get_max(stats):
-    max_pair = None
-    max_count = -1
-    for pair in stats:
-        if stats[pair] > max_count:
-            max_count = stats[pair]
-            max_pair = pair
+    max_pair=max(stats,key=stats.get)
     return max_pair
 
 def merge(tokens, max_pair, new_id):
