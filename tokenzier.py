@@ -41,3 +41,25 @@ def merge (tokens,max_pair,id):
 newtokenlist =merge(tokens,max_pair,len(tokens) )
 print(newtokenlist)
 
+vocab_size =600
+num_merges =vocab_size -256
+tokens2=list(tokens)
+
+merges={}
+ 
+for i in range(num_merges):
+    stats=get_stats(tokens2)
+    if not stats:
+        print("No more pairs to merge.")
+        break
+    max_pair=max(stats, key=stats.get)
+    print(max_pair)
+    newtoken= 256+i
+    print(f"merging{max_pair} into a new token {newtoken}")
+    tokens2=merge(tokens2,max_pair,newtoken)
+    merges[max_pair]=newtoken
+    
+print(f"token list : {tokens2} ")
+print(f"number of tokens {len(tokens2)} and the old token size was {len(tokens)}")
+    
+    
